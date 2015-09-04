@@ -251,7 +251,7 @@ func Test_ValidCallbackUrl_WaitExtractPath(t *testing.T) {
 	}
 }
 
-func Test_AuthorizationUrl(t *testing.T) {
+func Test_AuthorizationUrlCustomState(t *testing.T) {
 	var credentials = oauth.ClientCredentials{
 		ClientId: "some_client_id",
 	}
@@ -265,7 +265,7 @@ func Test_AuthorizationUrl(t *testing.T) {
 	}
 }
 
-func Test_Shit(t *testing.T) {
+func Test_AuthorizationUrlStateIsUndefined(t *testing.T) {
 	var credentials = oauth.ClientCredentials{
 		ClientId: "some_client_id",
 	}
