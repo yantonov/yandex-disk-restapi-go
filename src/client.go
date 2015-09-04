@@ -57,38 +57,52 @@ var defaultErrorHandler ErrorHandler = func(resp *http.Response) error {
 	return nil
 }
 
-func (client *Client) run(method, path string, params map[string]interface{}) ([]byte, error) {
+func (apiRequest *ApiRequest) run(client *Client) ([]byte, error) {
 	var err error
 
 	values := make(url.Values)
-	for k, v := range params {
-		values.Set(k, fmt.Sprintf("%v", v))
+	if apiRequest.parameters != nil {
+		for k, v := range apiRequest.parameters {
+			values.Set(k, fmt.Sprintf("%v", v))
+		}
 	}
 
 	var req *http.Request
-	if method == "POST" {
+	if apiRequest.method == "POST" {
 		// TODO json serialize
-		req, err = http.NewRequest("POST", client.basePath+path, strings.NewReader(values.Encode()))
+		req, err = http.NewRequest(
+			"POST",
+			client.basePath+apiRequest.path,
+			strings.NewReader(values.Encode()))
 		if err != nil {
 			return nil, err
 		}
-		req.Header.Set("Content-Type", "application/json")
+		// TODO
+		// req.Header.Set("Content-Type", "application/json")
 	} else {
-		req, err = http.NewRequest(method, client.basePath+path+"?"+values.Encode(), nil)
+		req, err = http.NewRequest(
+			apiRequest.method,
+			client.basePath+apiRequest.path+"?"+values.Encode(),
+			nil)
 		if err != nil {
 			return nil, err
 		}
 	}
 
-	return client.runRequest(req)
+	for headerName := range apiRequest.headers {
+		var headerValues = apiRequest.headers[headerName]
+		for _, headerValue := range headerValues {
+			req.Header.Set(headerName, headerValue)
+		}
+	}
+	return runRequest(client, req)
 }
 
-func (client *Client) runRequest(req *http.Request) ([]byte, error) {
-	return client.runRequestWithErrorHandler(req, defaultErrorHandler)
+func runRequest(client *Client, req *http.Request) ([]byte, error) {
+	return runRequestWithErrorHandler(client, req, defaultErrorHandler)
 }
 
-func (client *Client) runRequestWithErrorHandler(req *http.Request, errorHandler ErrorHandler) ([]byte, error) {
-	req.Header.Set("Authorization", "OAuth "+client.token)
+func runRequestWithErrorHandler(client *Client, req *http.Request, errorHandler ErrorHandler) ([]byte, error) {
 	resp, err := client.HttpClient.Do(req)
 
 	if err != nil {
