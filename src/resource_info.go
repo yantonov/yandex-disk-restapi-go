@@ -12,14 +12,34 @@ func (r *ResourceInfoRequest) request() *httpRequest {
 }
 
 type ResourceRequestOptions struct {
-	sortMode *SortMode
+	sort_mode    *SortMode
+	limit        *uint32
+	offset       *uint32
+	fields       []string
+	preview_size *PreviewSize
+	preview_crop *bool
 }
 
 func (c *Client) NewResourceInfoRequest(path string, options ...ResourceRequestOptions) *ResourceInfoRequest {
 	var parameters = make(map[string]interface{})
 	parameters["path"] = path
-	if len(options) > 0 && options[0].sortMode != nil {
-		parameters["sort"] = options[0].sortMode.String()
+	if len(options) > 0 {
+		opt := options[0]
+		if opt.sort_mode != nil {
+			parameters["sort"] = opt.sort_mode.String()
+		}
+		if opt.limit != nil {
+			parameters["limit"] = opt.limit
+		}
+		if opt.offset != nil {
+			parameters["offset"] = opt.offset
+		}
+		if opt.preview_size != nil {
+			parameters["preview_size"] = opt.preview_size.String()
+		}
+		if opt.preview_crop != nil {
+			parameters["preview_crop"] = opt.preview_crop
+		}
 	}
 	return &ResourceInfoRequest{
 		client:      c,
