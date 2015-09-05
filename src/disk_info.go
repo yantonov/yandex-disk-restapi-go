@@ -3,8 +3,12 @@ package src
 import "encoding/json"
 
 type DiskInfoRequest struct {
-	client  *Client
-	request *httpRequest
+	client      *Client
+	httpRequest *httpRequest
+}
+
+func (r *DiskInfoRequest) request() *httpRequest {
+	return r.httpRequest
 }
 
 type DiskInfoResponse struct {
@@ -16,13 +20,13 @@ type DiskInfoResponse struct {
 
 func (c *Client) NewDiskInfoRequest() *DiskInfoRequest {
 	return &DiskInfoRequest{
-		client:  c,
-		request: createGetRequest(c, "/", nil),
+		client:      c,
+		httpRequest: createGetRequest(c, "/", nil),
 	}
 }
 
 func (req *DiskInfoRequest) Exec() (*DiskInfoResponse, error) {
-	data, err := req.request.run(req.client)
+	data, err := req.request().run(req.client)
 	if err != nil {
 		return nil, err
 	}
