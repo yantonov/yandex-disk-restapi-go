@@ -4,7 +4,7 @@ import "encoding/json"
 
 type DiskInfoRequest struct {
 	client     *Client
-	apiRequest *ApiRequest
+	apiRequest *apiRequest
 }
 
 type DiskInfoResponse struct {

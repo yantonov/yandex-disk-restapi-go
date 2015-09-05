@@ -57,7 +57,7 @@ var defaultErrorHandler ErrorHandler = func(resp *http.Response) error {
 	return nil
 }
 
-func (apiRequest *ApiRequest) run(client *Client) ([]byte, error) {
+func (apiRequest *apiRequest) run(client *Client) ([]byte, error) {
 	var err error
 
 	values := make(url.Values)
