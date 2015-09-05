@@ -1,10 +1,10 @@
 package src
 
 type httpRequest struct {
-	method     string
-	path       string
-	parameters map[string]interface{}
-	headers    map[string][]string
+	Method     string
+	Path       string
+	Parameters map[string]interface{}
+	Headers    map[string][]string
 }
 
 func createGetRequest(client *Client, path string, params map[string]interface{}) *httpRequest {
@@ -19,9 +19,9 @@ func createRequest(client *Client, method string, path string, parameters map[st
 	var headers = make(map[string][]string)
 	headers["Authorization"] = []string{"OAuth " + client.token}
 	return &httpRequest{
-		method:     method,
-		path:       path,
-		parameters: parameters,
-		headers:    headers,
+		Method:     method,
+		Path:       path,
+		Parameters: parameters,
+		Headers:    headers,
 	}
 }

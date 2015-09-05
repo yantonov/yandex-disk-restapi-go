@@ -1,5 +1,7 @@
 package src
 
+import "strings"
+
 type SortMode struct {
 	mode string
 }
@@ -31,6 +33,17 @@ func (m *SortMode) ByModified() *SortMode {
 func (m *SortMode) BySize() *SortMode {
 	return &SortMode{
 		mode: "size",
+	}
+}
+
+func (m *SortMode) Reverse() *SortMode {
+	if strings.HasPrefix(m.mode, "-") {
+		return &SortMode{
+			mode: m.mode[1:],
+		}
+	}
+	return &SortMode{
+		mode: "-" + m.mode,
 	}
 }
 

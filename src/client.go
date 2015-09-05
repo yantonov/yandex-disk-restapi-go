@@ -61,18 +61,18 @@ func (httpRequest *httpRequest) run(client *Client) ([]byte, error) {
 	var err error
 
 	values := make(url.Values)
-	if httpRequest.parameters != nil {
-		for k, v := range httpRequest.parameters {
+	if httpRequest.Parameters != nil {
+		for k, v := range httpRequest.Parameters {
 			values.Set(k, fmt.Sprintf("%v", v))
 		}
 	}
 
 	var req *http.Request
-	if httpRequest.method == "POST" {
+	if httpRequest.Method == "POST" {
 		// TODO json serialize
 		req, err = http.NewRequest(
 			"POST",
-			client.basePath+httpRequest.path,
+			client.basePath+httpRequest.Path,
 			strings.NewReader(values.Encode()))
 		if err != nil {
 			return nil, err
@@ -81,16 +81,16 @@ func (httpRequest *httpRequest) run(client *Client) ([]byte, error) {
 		// req.Header.Set("Content-Type", "application/json")
 	} else {
 		req, err = http.NewRequest(
-			httpRequest.method,
-			client.basePath+httpRequest.path+"?"+values.Encode(),
+			httpRequest.Method,
+			client.basePath+httpRequest.Path+"?"+values.Encode(),
 			nil)
 		if err != nil {
 			return nil, err
 		}
 	}
 
-	for headerName := range httpRequest.headers {
-		var headerValues = httpRequest.headers[headerName]
+	for headerName := range httpRequest.Headers {
+		var headerValues = httpRequest.Headers[headerName]
 		for _, headerValue := range headerValues {
 			req.Header.Set(headerName, headerValue)
 		}
