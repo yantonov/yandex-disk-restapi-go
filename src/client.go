@@ -57,22 +57,22 @@ var defaultErrorHandler ErrorHandler = func(resp *http.Response) error {
 	return nil
 }
 
-func (apiRequest *apiRequest) run(client *Client) ([]byte, error) {
+func (httpRequest *httpRequest) run(client *Client) ([]byte, error) {
 	var err error
 
 	values := make(url.Values)
-	if apiRequest.parameters != nil {
-		for k, v := range apiRequest.parameters {
+	if httpRequest.parameters != nil {
+		for k, v := range httpRequest.parameters {
 			values.Set(k, fmt.Sprintf("%v", v))
 		}
 	}
 
 	var req *http.Request
-	if apiRequest.method == "POST" {
+	if httpRequest.method == "POST" {
 		// TODO json serialize
 		req, err = http.NewRequest(
 			"POST",
-			client.basePath+apiRequest.path,
+			client.basePath+httpRequest.path,
 			strings.NewReader(values.Encode()))
 		if err != nil {
 			return nil, err
@@ -81,16 +81,16 @@ func (apiRequest *apiRequest) run(client *Client) ([]byte, error) {
 		// req.Header.Set("Content-Type", "application/json")
 	} else {
 		req, err = http.NewRequest(
-			apiRequest.method,
-			client.basePath+apiRequest.path+"?"+values.Encode(),
+			httpRequest.method,
+			client.basePath+httpRequest.path+"?"+values.Encode(),
 			nil)
 		if err != nil {
 			return nil, err
 		}
 	}
 
-	for headerName := range apiRequest.headers {
-		var headerValues = apiRequest.headers[headerName]
+	for headerName := range httpRequest.headers {
+		var headerValues = httpRequest.headers[headerName]
 		for _, headerValue := range headerValues {
 			req.Header.Set(headerName, headerValue)
 		}
