@@ -206,3 +206,28 @@ func Test_ResourceRequest_NoPreviewCrop(t *testing.T) {
 		t.Errorf("preview_crop must be undefined")
 	}
 }
+
+func Test_ResourceRequest_FieldsList(t *testing.T) {
+	var client = NewStubResponseClient(`{}`, http.StatusOK)
+	var fields = []string{"a", "b"}
+	var options = diskclient.ResourceInfoRequestOptions{
+		Fields: fields,
+	}
+	request := client.NewResourceInfoRequest("/path", options).Request()
+
+	extracted_param := request.Parameters["fields"]
+	if extracted_param != "a,b" {
+		t.Errorf("invalid fields param, actual : %v", extracted_param)
+	}
+}
+
+func Test_ResourceRequest_EmptyFieldsList(t *testing.T) {
+	var client = NewStubResponseClient(`{}`, http.StatusOK)
+	var options = diskclient.ResourceInfoRequestOptions{}
+	request := client.NewResourceInfoRequest("/path", options).Request()
+
+	extracted_param := request.Parameters["fields"]
+	if extracted_param != nil {
+		t.Errorf("fields param must be undefined")
+	}
+}

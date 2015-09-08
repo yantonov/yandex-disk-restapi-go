@@ -1,6 +1,9 @@
 package src
 
-import "encoding/json"
+import (
+	"encoding/json"
+	"strings"
+)
 
 type ResourceInfoRequest struct {
 	client      *Client
@@ -33,6 +36,9 @@ func (c *Client) NewResourceInfoRequest(path string, options ...ResourceInfoRequ
 		}
 		if opt.Offset != nil {
 			parameters["offset"] = opt.Offset
+		}
+		if opt.Fields != nil {
+			parameters["fields"] = strings.Join(opt.Fields, ",")
 		}
 		if opt.Preview_size != nil {
 			parameters["preview_size"] = opt.Preview_size.String()
