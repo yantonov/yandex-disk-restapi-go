@@ -11,6 +11,32 @@ import (
 func Test_ResourceInfo_Simple(t *testing.T) {
 	var client = NewStubResponseClient(`{
   "public_key": "HQsmHLoeyBlJf8Eu1jlmzuU+ZaLkjPkgcvmoktUCIo8=",
+"_embedded": {
+    "sort": "name",
+    "path": "disk:/foo",
+    "items": [
+      {
+        "path": "disk:/foo/bar",
+        "type": "dir",
+        "name": "bar",
+        "modified": "2014-04-22T10:32:49+04:00",
+        "created": "2014-04-22T10:32:49+04:00"
+      },
+      {
+        "name": "photo.png",
+        "preview": "https://downloader.disk.yandex.ru/preview/...",
+        "created": "2014-04-21T14:57:13+04:00",
+        "modified": "2014-04-21T14:57:14+04:00",
+        "path": "disk:/foo/photo.png",
+        "md5": "4334dc6379c8f95ddf11b9508cfea271",
+        "type": "file",
+        "mime_type": "image/png",
+        "size": 34567
+      }
+    ],
+    "limit": 20,
+    "offset": 0
+  },
   "name": "photo.png",
   "created": "2014-04-21T14:57:13+04:00",
   "custom_properties": {"foo": "1", "bar": "2"},
@@ -31,11 +57,13 @@ func Test_ResourceInfo_Simple(t *testing.T) {
 	expected.Public_key = "HQsmHLoeyBlJf8Eu1jlmzuU+ZaLkjPkgcvmoktUCIo8="
 	expected.Name = "photo.png"
 	expected.Created = "2014-04-21T14:57:13+04:00"
+
 	var custom_properties = make(map[string]interface{})
 	custom_properties["foo"] = "1"
 	custom_properties["bar"] = "2"
-	expected.Public_url = "https://yadi.sk/d/2rEgCiNTZGiYX"
 	expected.Custom_properties = custom_properties
+
+	expected.Public_url = "https://yadi.sk/d/2rEgCiNTZGiYX"
 	expected.Origin_path = "disk:/foo/photo.png"
 	expected.Modified = "2014-04-21T14:57:14+04:00"
 	expected.Path = "disk:/foo/photo.png"
@@ -44,6 +72,63 @@ func Test_ResourceInfo_Simple(t *testing.T) {
 	expected.Mime_type = "application/x-www-form-urlencoded"
 	expected.Size = 34567
 
+	var limit uint64 = 20
+	var offset uint64 = 0
+	var embedded diskclient.ResourceListResponse = diskclient.ResourceListResponse{
+		Sort:   (&diskclient.SortMode{}).ByName(),
+		Path:   "disk:/foo",
+		Limit:  &limit,
+		Offset: &offset,
+		Items: []diskclient.ResourceInfoResponse{
+			diskclient.ResourceInfoResponse{
+				Path:          "disk:/foo/bar",
+				Resource_type: "dir",
+				Name:          "bar",
+				Modified:      "2014-04-22T10:32:49+04:00",
+				Created:       "2014-04-22T10:32:49+04:00"},
+			diskclient.ResourceInfoResponse{
+				Name:          "photo.png",
+				Preview:       "https://downloader.disk.yandex.ru/preview/...",
+				Created:       "2014-04-21T14:57:13+04:00",
+				Modified:      "2014-04-21T14:57:14+04:00",
+				Path:          "disk:/foo/photo.png",
+				Md5:           "4334dc6379c8f95ddf11b9508cfea271",
+				Resource_type: "file",
+				Mime_type:     "image/png",
+				Size:          34567,
+			},
+		},
+	}
+	expected.Embedded = &embedded
+
+	if !reflect.DeepEqual(response, expected) {
+		t.Errorf("should match\nactual   = %v\nexpected = %v", response, expected)
+	}
+}
+
+func Test_ResourceInfo_EmptyEmbeddedSortMode(t *testing.T) {
+	var client = NewStubResponseClient(`{
+"_embedded": {
+    "sort": ""
+},
+  "name": "photo.png",
+  "size": 34567
+}`, http.StatusOK)
+	response, err := client.NewResourceInfoRequest("/some_dir").Exec()
+	if err != nil {
+		t.Error(fmt.Sprintf("unexpected error %s", err.Error()))
+	}
+	var expected = &diskclient.ResourceInfoResponse{}
+	expected.Name = "photo.png"
+	var custom_properties = make(map[string]interface{})
+	expected.Custom_properties = custom_properties
+	expected.Size = 34567
+
+	var embedded diskclient.ResourceListResponse = diskclient.ResourceListResponse{
+		Sort:  (&diskclient.SortMode{}).Default(),
+		Items: []diskclient.ResourceInfoResponse{},
+	}
+	expected.Embedded = &embedded
 	if !reflect.DeepEqual(response, expected) {
 		t.Errorf("should match\nactual   = %v\nexpected = %v", response, expected)
 	}

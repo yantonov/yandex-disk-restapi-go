@@ -67,6 +67,10 @@ func (req *ResourceInfoRequest) Exec() (*ResourceInfoResponse, error) {
 	if info.Custom_properties == nil {
 		info.Custom_properties = make(map[string]interface{})
 	}
-
+	if info.Embedded != nil {
+		if cap(info.Embedded.Items) == 0 {
+			info.Embedded.Items = []ResourceInfoResponse{}
+		}
+	}
 	return &info, nil
 }

@@ -6,6 +6,12 @@ type SortMode struct {
 	mode string
 }
 
+func (m *SortMode) Default() *SortMode {
+	return &SortMode{
+		mode: "",
+	}
+}
+
 func (m *SortMode) ByName() *SortMode {
 	return &SortMode{
 		mode: "name",
@@ -48,8 +54,17 @@ func (m *SortMode) Reverse() *SortMode {
 }
 
 func (m *SortMode) String() string {
-	if m.mode == "" {
-		panic("undefined mode")
-	}
 	return m.mode
+}
+
+func (m *SortMode) UnmarshalJSON(value []byte) error {
+	if value == nil || len(value) == 0 {
+		m.mode = ""
+		return nil
+	}
+	m.mode = string(value)
+	if strings.HasPrefix(m.mode, "\"") && strings.HasSuffix(m.mode, "\"") {
+		m.mode = m.mode[1 : len(m.mode)-1]
+	}
+	return nil
 }
