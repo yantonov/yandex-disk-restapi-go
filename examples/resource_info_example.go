@@ -51,11 +51,18 @@ func main() {
 		fmt.Println(err)
 		os.Exit(1)
 	}
-	fmt.Printf("\tCustom_properties: %s\n", custom_properties)
+
+	embedded, err := json.Marshal(info.Embedded)
+	if err != nil {
+		fmt.Println(err)
+		os.Exit(1)
+	}
 
 	fmt.Printf("\tPublic url: %s\n", info.Public_url)
+	fmt.Printf("\tEmbedded: %s\n", embedded)
 	fmt.Printf("\tOrigin path: %s\n", info.Origin_path)
 	fmt.Printf("\tModified: %s\n", info.Modified)
+	fmt.Printf("\tCustom_properties: %s\n", custom_properties)
 	fmt.Printf("\tPath: %s\n", info.Path)
 	fmt.Printf("\tMd5: %s\n", info.Md5)
 	fmt.Printf("\tType: %s\n", info.Resource_type)
