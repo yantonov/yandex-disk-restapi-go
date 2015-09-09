@@ -35,7 +35,7 @@ func main() {
 	client := src.NewClient(accessToken)
 
 	fmt.Printf("Fetching resource info...\n")
-	info, err := client.NewResourceInfoRequest(path).Exec()
+	info, err := client.NewTrashResourceInfoRequest(path).Exec()
 
 	if err != nil {
 		fmt.Println(err)
