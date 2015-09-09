@@ -2,23 +2,23 @@ package src
 
 import "encoding/json"
 
-type ResourceInfoRequest struct {
+type TrashResourceInfoRequest struct {
 	client      *Client
 	httpRequest *httpRequest
 }
 
-func (r *ResourceInfoRequest) Request() *httpRequest {
+func (r *TrashResourceInfoRequest) Request() *httpRequest {
 	return r.httpRequest
 }
 
-func (c *Client) NewResourceInfoRequest(path string, options ...ResourceInfoRequestOptions) *ResourceInfoRequest {
-	return &ResourceInfoRequest{
+func (c *Client) NewTrashResourceInfoRequest(path string, options ...ResourceInfoRequestOptions) *TrashResourceInfoRequest {
+	return &TrashResourceInfoRequest{
 		client:      c,
-		httpRequest: createResourceInfoRequest(c, "/resources", path, options...),
+		httpRequest: createResourceInfoRequest(c, "/trash/resources", path, options...),
 	}
 }
 
-func (req *ResourceInfoRequest) Exec() (*ResourceInfoResponse, error) {
+func (req *TrashResourceInfoRequest) Exec() (*ResourceInfoResponse, error) {
 	data, err := req.Request().run(req.client)
 	if err != nil {
 		return nil, err
