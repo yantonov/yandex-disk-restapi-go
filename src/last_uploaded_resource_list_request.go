@@ -27,7 +27,7 @@ func (c *Client) NewLastUploadedResourceListRequest(options ...LastUploadedResou
 	if len(options) > 0 {
 		opt := options[0]
 		if opt.Limit != nil {
-			parameters["limit"] = opt.Limit
+			parameters["limit"] = *opt.Limit
 		}
 		if opt.Fields != nil {
 			parameters["fields"] = strings.Join(opt.Fields, ",")
@@ -36,7 +36,7 @@ func (c *Client) NewLastUploadedResourceListRequest(options ...LastUploadedResou
 			parameters["preview_size"] = opt.Preview_size.String()
 		}
 		if opt.Preview_crop != nil {
-			parameters["preview_crop"] = opt.Preview_crop
+			parameters["preview_crop"] = *opt.Preview_crop
 		}
 		if opt.Media_type != nil {
 			var str_media_types = make([]string, len(opt.Media_type))

@@ -100,12 +100,12 @@ func Test_LastUploadedResourceListRequest_Limit(t *testing.T) {
 	}
 	request := client.NewLastUploadedResourceListRequest(options).Request()
 
-	if request.Parameters["limit"] == nil {
+	if request_limit, ok := request.Parameters["limit"].(uint32); ok {
+		if request_limit != 123456 {
+			t.Errorf("invalid limit, actual : %d", request_limit)
+		}
+	} else {
 		t.Errorf("limit is undefined")
-	}
-	request_limit := (request.Parameters["limit"]).(*uint32)
-	if *request_limit != 123456 {
-		t.Errorf("invalid limit, actual : %d", *request_limit)
 	}
 }
 
@@ -151,9 +151,12 @@ func Test_LastUploadedResourceListRequest_PreviewCrop(t *testing.T) {
 	}
 	request := client.NewLastUploadedResourceListRequest(options).Request()
 
-	extracted_crop := request.Parameters["preview_crop"].(*bool)
-	if *extracted_crop != true {
-		t.Errorf("invalid preview_crop, actual : %v", *extracted_crop)
+	if extracted_crop, ok := request.Parameters["preview_crop"].(bool); ok {
+		if extracted_crop != true {
+			t.Errorf("invalid preview_crop, actual : %v", extracted_crop)
+		}
+	} else {
+		t.Errorf("preview_crop is undefined")
 	}
 }
 
