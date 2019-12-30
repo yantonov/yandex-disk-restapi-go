@@ -2,6 +2,7 @@ package src
 
 import "encoding/json"
 
+// https://tech.yandex.com/disk/api/reference/content-docpage/
 type DownloadRequest struct {
 	client      *Client
 	httpRequest *httpRequest
