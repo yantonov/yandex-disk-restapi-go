@@ -1,8 +1,7 @@
-package test
+package yandexdiskapi
 
 import (
 	"fmt"
-	diskclient "github.com/yantonov/yandex-disk-restapi-go/src"
 	"net/http"
 	"reflect"
 	"testing"
@@ -14,7 +13,7 @@ func Test_DiskInfo_Simple(t *testing.T) {
 	if err != nil {
 		t.Error(fmt.Sprintf("unexpected error %s", err.Error()))
 	}
-	var expected = &diskclient.DiskInfoResponse{}
+	var expected = &DiskInfoResponse{}
 	expected.System_folders = make(map[string]string)
 
 	if !reflect.DeepEqual(response, expected) {
@@ -28,7 +27,7 @@ func Test_NonEmptySystemFolders(t *testing.T) {
 	if err != nil {
 		t.Error(fmt.Sprintf("unexpected error %s", err.Error()))
 	}
-	var expected = &diskclient.DiskInfoResponse{}
+	var expected = &DiskInfoResponse{}
 	expected.System_folders = make(map[string]string)
 	expected.System_folders["applications"] = "disk:/Applications"
 	expected.System_folders["downloads"] = "disk:/Downloads/"

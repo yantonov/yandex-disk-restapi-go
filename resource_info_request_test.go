@@ -1,8 +1,7 @@
-package test
+package yandexdiskapi
 
 import (
 	"fmt"
-	diskclient "github.com/yantonov/yandex-disk-restapi-go/src"
 	"net/http"
 	"reflect"
 	"testing"
@@ -53,7 +52,7 @@ func Test_ResourceInfo_Simple(t *testing.T) {
 	if err != nil {
 		t.Error(fmt.Sprintf("unexpected error %s", err.Error()))
 	}
-	var expected = &diskclient.ResourceInfoResponse{}
+	var expected = &ResourceInfoResponse{}
 	expected.Public_key = "HQsmHLoeyBlJf8Eu1jlmzuU+ZaLkjPkgcvmoktUCIo8="
 	expected.Name = "photo.png"
 	expected.Created = "2014-04-21T14:57:13+04:00"
@@ -74,19 +73,19 @@ func Test_ResourceInfo_Simple(t *testing.T) {
 
 	var limit uint64 = 20
 	var offset uint64 = 0
-	var embedded diskclient.ResourceListResponse = diskclient.ResourceListResponse{
-		Sort:   (&diskclient.SortMode{}).ByName(),
+	var embedded ResourceListResponse = ResourceListResponse{
+		Sort:   (&SortMode{}).ByName(),
 		Path:   "disk:/foo",
 		Limit:  &limit,
 		Offset: &offset,
-		Items: []diskclient.ResourceInfoResponse{
-			diskclient.ResourceInfoResponse{
+		Items: []ResourceInfoResponse{
+			ResourceInfoResponse{
 				Path:          "disk:/foo/bar",
 				Resource_type: "dir",
 				Name:          "bar",
 				Modified:      "2014-04-22T10:32:49+04:00",
 				Created:       "2014-04-22T10:32:49+04:00"},
-			diskclient.ResourceInfoResponse{
+			ResourceInfoResponse{
 				Name:          "photo.png",
 				Preview:       "https://downloader.disk.yandex.ru/preview/...",
 				Created:       "2014-04-21T14:57:13+04:00",
@@ -118,15 +117,15 @@ func Test_ResourceInfo_EmptyEmbeddedSortMode(t *testing.T) {
 	if err != nil {
 		t.Error(fmt.Sprintf("unexpected error %s", err.Error()))
 	}
-	var expected = &diskclient.ResourceInfoResponse{}
+	var expected = &ResourceInfoResponse{}
 	expected.Name = "photo.png"
 	var custom_properties = make(map[string]interface{})
 	expected.Custom_properties = custom_properties
 	expected.Size = 34567
 
-	var embedded diskclient.ResourceListResponse = diskclient.ResourceListResponse{
-		Sort:  (&diskclient.SortMode{}).Default(),
-		Items: []diskclient.ResourceInfoResponse{},
+	var embedded ResourceListResponse = ResourceListResponse{
+		Sort:  (&SortMode{}).Default(),
+		Items: []ResourceInfoResponse{},
 	}
 	expected.Embedded = &embedded
 	if !reflect.DeepEqual(response, expected) {
@@ -140,7 +139,7 @@ func Test_ResourceInfo_EmptyCustomProperties(t *testing.T) {
 	if err != nil {
 		t.Error(fmt.Sprintf("unexpected error %s", err.Error()))
 	}
-	var expected = &diskclient.ResourceInfoResponse{}
+	var expected = &ResourceInfoResponse{}
 	expected.Custom_properties = make(map[string]interface{})
 	if !reflect.DeepEqual(response, expected) {
 		t.Errorf("should match\nactual   = %v\nexpected = %v", response, expected)
@@ -149,8 +148,8 @@ func Test_ResourceInfo_EmptyCustomProperties(t *testing.T) {
 
 func Test_ResourceRequest_WithSortMode(t *testing.T) {
 	var client = NewStubResponseClient(`{}`, http.StatusOK)
-	var options = diskclient.ResourceInfoRequestOptions{
-		Sort_mode: (&diskclient.SortMode{}).BySize(),
+	var options = ResourceInfoRequestOptions{
+		Sort_mode: (&SortMode{}).BySize(),
 	}
 	request := client.NewResourceInfoRequest("/path", options).Request()
 
@@ -161,8 +160,8 @@ func Test_ResourceRequest_WithSortMode(t *testing.T) {
 
 func Test_ResourceRequest_WithReverseSortMode(t *testing.T) {
 	var client = NewStubResponseClient(`{}`, http.StatusOK)
-	var options = diskclient.ResourceInfoRequestOptions{
-		Sort_mode: (&diskclient.SortMode{}).BySize().Reverse(),
+	var options = ResourceInfoRequestOptions{
+		Sort_mode: (&SortMode{}).BySize().Reverse(),
 	}
 	request := client.NewResourceInfoRequest("/path", options).Request()
 
@@ -170,8 +169,8 @@ func Test_ResourceRequest_WithReverseSortMode(t *testing.T) {
 		t.Errorf("invalid sort mode, actual : %s", request.Parameters["sort"])
 	}
 
-	options = diskclient.ResourceInfoRequestOptions{
-		Sort_mode: (&diskclient.SortMode{}).BySize().Reverse().Reverse(),
+	options = ResourceInfoRequestOptions{
+		Sort_mode: (&SortMode{}).BySize().Reverse().Reverse(),
 	}
 	request = client.NewResourceInfoRequest("/path", options).Request()
 
@@ -182,7 +181,7 @@ func Test_ResourceRequest_WithReverseSortMode(t *testing.T) {
 
 func Test_ResourceRequest_WithoutSortMode(t *testing.T) {
 	var client = NewStubResponseClient(`{}`, http.StatusOK)
-	var options = diskclient.ResourceInfoRequestOptions{}
+	var options = ResourceInfoRequestOptions{}
 	request := client.NewResourceInfoRequest("/path", options).Request()
 
 	if request.Parameters["sort"] != nil {
@@ -193,7 +192,7 @@ func Test_ResourceRequest_WithoutSortMode(t *testing.T) {
 func Test_ResourceRequest_Limit(t *testing.T) {
 	var client = NewStubResponseClient(`{}`, http.StatusOK)
 	var limit uint32 = 123456
-	var options = diskclient.ResourceInfoRequestOptions{
+	var options = ResourceInfoRequestOptions{
 		Limit: &limit,
 	}
 	request := client.NewResourceInfoRequest("/path", options).Request()
@@ -209,7 +208,7 @@ func Test_ResourceRequest_Limit(t *testing.T) {
 
 func Test_ResourceRequest_NoLimit(t *testing.T) {
 	var client = NewStubResponseClient(`{}`, http.StatusOK)
-	var options = diskclient.ResourceInfoRequestOptions{}
+	var options = ResourceInfoRequestOptions{}
 	request := client.NewResourceInfoRequest("/path", options).Request()
 
 	if request.Parameters["limit"] != nil {
@@ -220,7 +219,7 @@ func Test_ResourceRequest_NoLimit(t *testing.T) {
 func Test_ResourceRequest_Offset(t *testing.T) {
 	var client = NewStubResponseClient(`{}`, http.StatusOK)
 	var offset uint32 = 123456
-	var options = diskclient.ResourceInfoRequestOptions{
+	var options = ResourceInfoRequestOptions{
 		Offset: &offset,
 	}
 	request := client.NewResourceInfoRequest("/path", options).Request()
@@ -236,7 +235,7 @@ func Test_ResourceRequest_Offset(t *testing.T) {
 
 func Test_ResourceRequest_NoOffset(t *testing.T) {
 	var client = NewStubResponseClient(`{}`, http.StatusOK)
-	var options = diskclient.ResourceInfoRequestOptions{}
+	var options = ResourceInfoRequestOptions{}
 	request := client.NewResourceInfoRequest("/path", options).Request()
 
 	if request.Parameters["offset"] != nil {
@@ -246,8 +245,8 @@ func Test_ResourceRequest_NoOffset(t *testing.T) {
 
 func Test_ResourceRequest_PreviewSize(t *testing.T) {
 	var client = NewStubResponseClient(`{}`, http.StatusOK)
-	var options = diskclient.ResourceInfoRequestOptions{
-		Preview_size: (&diskclient.PreviewSize{}).PredefinedSizeM(),
+	var options = ResourceInfoRequestOptions{
+		Preview_size: (&PreviewSize{}).PredefinedSizeM(),
 	}
 	request := client.NewResourceInfoRequest("/path", options).Request()
 
@@ -259,7 +258,7 @@ func Test_ResourceRequest_PreviewSize(t *testing.T) {
 
 func Test_ResourceRequest_NoPreviewSize(t *testing.T) {
 	var client = NewStubResponseClient(`{}`, http.StatusOK)
-	var options = diskclient.ResourceInfoRequestOptions{}
+	var options = ResourceInfoRequestOptions{}
 	request := client.NewResourceInfoRequest("/path", options).Request()
 
 	size := request.Parameters["preview_size"]
@@ -271,7 +270,7 @@ func Test_ResourceRequest_NoPreviewSize(t *testing.T) {
 func Test_ResourceRequest_PreviewCrop(t *testing.T) {
 	var client = NewStubResponseClient(`{}`, http.StatusOK)
 	crop := true
-	var options = diskclient.ResourceInfoRequestOptions{
+	var options = ResourceInfoRequestOptions{
 		Preview_crop: &crop,
 	}
 	request := client.NewResourceInfoRequest("/path", options).Request()
@@ -287,7 +286,7 @@ func Test_ResourceRequest_PreviewCrop(t *testing.T) {
 
 func Test_ResourceRequest_NoPreviewCrop(t *testing.T) {
 	var client = NewStubResponseClient(`{}`, http.StatusOK)
-	var options = diskclient.ResourceInfoRequestOptions{}
+	var options = ResourceInfoRequestOptions{}
 	request := client.NewResourceInfoRequest("/path", options).Request()
 
 	if request.Parameters["preview_crop"] != nil {
@@ -298,7 +297,7 @@ func Test_ResourceRequest_NoPreviewCrop(t *testing.T) {
 func Test_ResourceRequest_FieldsList(t *testing.T) {
 	var client = NewStubResponseClient(`{}`, http.StatusOK)
 	var fields = []string{"a", "b"}
-	var options = diskclient.ResourceInfoRequestOptions{
+	var options = ResourceInfoRequestOptions{
 		Fields: fields,
 	}
 	request := client.NewResourceInfoRequest("/path", options).Request()
@@ -311,7 +310,7 @@ func Test_ResourceRequest_FieldsList(t *testing.T) {
 
 func Test_ResourceRequest_EmptyFieldsList(t *testing.T) {
 	var client = NewStubResponseClient(`{}`, http.StatusOK)
-	var options = diskclient.ResourceInfoRequestOptions{}
+	var options = ResourceInfoRequestOptions{}
 	request := client.NewResourceInfoRequest("/path", options).Request()
 
 	extracted_param := request.Parameters["fields"]

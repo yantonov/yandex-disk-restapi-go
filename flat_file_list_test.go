@@ -1,14 +1,13 @@
-package test
+package yandexdiskapi
 
 import (
 	"fmt"
-	diskclient "github.com/yantonov/yandex-disk-restapi-go/src"
 	"net/http"
 	"reflect"
 	"testing"
 )
 
-func Test_LastUploadedResourceList_Simple(t *testing.T) {
+func Test_FlatFileList_Simple(t *testing.T) {
 	var client = NewStubResponseClient(`{
   "items": [
       {
@@ -37,12 +36,12 @@ func Test_LastUploadedResourceList_Simple(t *testing.T) {
     "limit": 20,
     "offset": 0
   }`, http.StatusOK)
-	response, err := client.NewLastUploadedResourceListRequest().Exec()
+	response, err := client.NewFlatFileListRequest().Exec()
 	if err != nil {
 		t.Error(fmt.Sprintf("unexpected error %s", err.Error()))
 	}
-	var expected = &diskclient.LastUploadedResourceListResponse{}
-	var resource1 = diskclient.ResourceInfoResponse{
+	var expected = &FilesResourceListResponse{}
+	var resource1 = ResourceInfoResponse{
 		Name:          "photo2.png",
 		Preview:       "https://downloader.disk.yandex.ru/preview/...",
 		Created:       "2014-04-22T14:57:13+04:00",
@@ -53,7 +52,7 @@ func Test_LastUploadedResourceList_Simple(t *testing.T) {
 		Mime_type:     "image/png",
 		Size:          54321,
 	}
-	var resource2 = diskclient.ResourceInfoResponse{
+	var resource2 = ResourceInfoResponse{
 		Name:          "photo1.png",
 		Preview:       "https://downloader.disk.yandex.ru/preview/...",
 		Created:       "2014-04-21T14:57:13+04:00",
@@ -64,8 +63,10 @@ func Test_LastUploadedResourceList_Simple(t *testing.T) {
 		Mime_type:     "image/png",
 		Size:          34567,
 	}
-	expected.Items = []diskclient.ResourceInfoResponse{resource1, resource2}
+	expected.Items = []ResourceInfoResponse{resource1, resource2}
 	var limit uint64 = 20
+	var offset uint64 = 0
+	expected.Offset = &offset
 	expected.Limit = &limit
 
 	if !reflect.DeepEqual(response, expected) {
@@ -73,18 +74,20 @@ func Test_LastUploadedResourceList_Simple(t *testing.T) {
 	}
 }
 
-func Test_LastUploadedResourceList_NoItemsInResponse(t *testing.T) {
+func Test_FlatFileList_NoItemsInResponse(t *testing.T) {
 	var client = NewStubResponseClient(`{
     "limit": 20,
     "offset": 0
   }`, http.StatusOK)
-	response, err := client.NewLastUploadedResourceListRequest().Exec()
+	response, err := client.NewFlatFileListRequest().Exec()
 	if err != nil {
 		t.Error(fmt.Sprintf("unexpected error %s", err.Error()))
 	}
-	var expected = &diskclient.LastUploadedResourceListResponse{}
-	expected.Items = []diskclient.ResourceInfoResponse{}
+	var expected = &FilesResourceListResponse{}
+	expected.Items = []ResourceInfoResponse{}
 	var limit uint64 = 20
+	var offset uint64 = 0
+	expected.Offset = &offset
 	expected.Limit = &limit
 
 	if !reflect.DeepEqual(response, expected) {
@@ -92,15 +95,15 @@ func Test_LastUploadedResourceList_NoItemsInResponse(t *testing.T) {
 	}
 }
 
-func Test_LastUploadedResourceListRequest_Limit(t *testing.T) {
+func Test_FlatFileListRequest_Limit(t *testing.T) {
 	var client = NewStubResponseClient(`{}`, http.StatusOK)
 	var limit uint32 = 123456
-	var options = diskclient.LastUploadedResourceListRequestOptions{
+	var options = FlatFileListRequestOptions{
 		Limit: &limit,
 	}
-	request := client.NewLastUploadedResourceListRequest(options).Request()
+	request := client.NewFlatFileListRequest(options).Request()
 
-	if request_limit, ok := request.Parameters["limit"].(uint32); ok {
+	if request_limit, ok := (request.Parameters["limit"]).(uint32); ok {
 		if request_limit != 123456 {
 			t.Errorf("invalid limit, actual : %d", request_limit)
 		}
@@ -109,22 +112,49 @@ func Test_LastUploadedResourceListRequest_Limit(t *testing.T) {
 	}
 }
 
-func Test_LastUploadedResourceListRequest_NoLimit(t *testing.T) {
+func Test_FlatFileListRequest_NoLimit(t *testing.T) {
 	var client = NewStubResponseClient(`{}`, http.StatusOK)
-	var options = diskclient.LastUploadedResourceListRequestOptions{}
-	request := client.NewLastUploadedResourceListRequest(options).Request()
+	var options = FlatFileListRequestOptions{}
+	request := client.NewFlatFileListRequest(options).Request()
 
 	if request.Parameters["limit"] != nil {
 		t.Errorf("limit must be undefined")
 	}
 }
 
-func Test_LastUploadedResourceListRequest_PreviewSize(t *testing.T) {
+func Test_FlatFileListRequest_Offset(t *testing.T) {
 	var client = NewStubResponseClient(`{}`, http.StatusOK)
-	var options = diskclient.LastUploadedResourceListRequestOptions{
-		Preview_size: (&diskclient.PreviewSize{}).PredefinedSizeM(),
+	var offset uint32 = 123456
+	var options = FlatFileListRequestOptions{
+		Offset: &offset,
 	}
-	request := client.NewLastUploadedResourceListRequest(options).Request()
+	request := client.NewFlatFileListRequest(options).Request()
+
+	if request_offset, ok := (request.Parameters["offset"]).(uint32); ok {
+		if request_offset != 123456 {
+			t.Errorf("invalid offset, actual : %d", request_offset)
+		}
+	} else {
+		t.Errorf("offset is undefined")
+	}
+}
+
+func Test_FlatFileListRequest_NoOffset(t *testing.T) {
+	var client = NewStubResponseClient(`{}`, http.StatusOK)
+	var options = FlatFileListRequestOptions{}
+	request := client.NewFlatFileListRequest(options).Request()
+
+	if request.Parameters["offset"] != nil {
+		t.Errorf("offset must be undefined")
+	}
+}
+
+func Test_FlatFileListRequest_PreviewSize(t *testing.T) {
+	var client = NewStubResponseClient(`{}`, http.StatusOK)
+	var options = FlatFileListRequestOptions{
+		Preview_size: (&PreviewSize{}).PredefinedSizeM(),
+	}
+	request := client.NewFlatFileListRequest(options).Request()
 
 	size := request.Parameters["preview_size"]
 	if size != "M" {
@@ -132,10 +162,10 @@ func Test_LastUploadedResourceListRequest_PreviewSize(t *testing.T) {
 	}
 }
 
-func Test_LastUploadedResourceListRequest_NoPreviewSize(t *testing.T) {
+func Test_FlatFileListRequest_NoPreviewSize(t *testing.T) {
 	var client = NewStubResponseClient(`{}`, http.StatusOK)
-	var options = diskclient.LastUploadedResourceListRequestOptions{}
-	request := client.NewLastUploadedResourceListRequest(options).Request()
+	var options = FlatFileListRequestOptions{}
+	request := client.NewFlatFileListRequest(options).Request()
 
 	size := request.Parameters["preview_size"]
 	if size != nil {
@@ -143,15 +173,15 @@ func Test_LastUploadedResourceListRequest_NoPreviewSize(t *testing.T) {
 	}
 }
 
-func Test_LastUploadedResourceListRequest_PreviewCrop(t *testing.T) {
+func Test_FlatFileListRequest_PreviewCrop(t *testing.T) {
 	var client = NewStubResponseClient(`{}`, http.StatusOK)
 	crop := true
-	var options = diskclient.LastUploadedResourceListRequestOptions{
+	var options = FlatFileListRequestOptions{
 		Preview_crop: &crop,
 	}
-	request := client.NewLastUploadedResourceListRequest(options).Request()
+	request := client.NewFlatFileListRequest(options).Request()
 
-	if extracted_crop, ok := request.Parameters["preview_crop"].(bool); ok {
+	if extracted_crop, ok := (request.Parameters["preview_crop"]).(bool); ok {
 		if extracted_crop != true {
 			t.Errorf("invalid preview_crop, actual : %v", extracted_crop)
 		}
@@ -160,23 +190,23 @@ func Test_LastUploadedResourceListRequest_PreviewCrop(t *testing.T) {
 	}
 }
 
-func Test_LastUploadedResourceListRequest_NoPreviewCrop(t *testing.T) {
+func Test_FlatFileListRequest_NoPreviewCrop(t *testing.T) {
 	var client = NewStubResponseClient(`{}`, http.StatusOK)
-	var options = diskclient.LastUploadedResourceListRequestOptions{}
-	request := client.NewLastUploadedResourceListRequest(options).Request()
+	var options = FlatFileListRequestOptions{}
+	request := client.NewFlatFileListRequest(options).Request()
 
 	if request.Parameters["preview_crop"] != nil {
 		t.Errorf("preview_crop must be undefined")
 	}
 }
 
-func Test_LastUploadedResourceListRequest_FieldsList(t *testing.T) {
+func Test_FlatFileListRequest_FieldsList(t *testing.T) {
 	var client = NewStubResponseClient(`{}`, http.StatusOK)
 	var fields = []string{"a", "b"}
-	var options = diskclient.LastUploadedResourceListRequestOptions{
+	var options = FlatFileListRequestOptions{
 		Fields: fields,
 	}
-	request := client.NewLastUploadedResourceListRequest(options).Request()
+	request := client.NewFlatFileListRequest(options).Request()
 
 	extracted_param := request.Parameters["fields"]
 	if extracted_param != "a,b" {
@@ -184,10 +214,10 @@ func Test_LastUploadedResourceListRequest_FieldsList(t *testing.T) {
 	}
 }
 
-func Test_LastUploadedResourceListRequest_EmptyFieldsList(t *testing.T) {
+func Test_FlatFileListRequest_EmptyFieldsList(t *testing.T) {
 	var client = NewStubResponseClient(`{}`, http.StatusOK)
-	var options = diskclient.LastUploadedResourceListRequestOptions{}
-	request := client.NewLastUploadedResourceListRequest(options).Request()
+	var options = FlatFileListRequestOptions{}
+	request := client.NewFlatFileListRequest(options).Request()
 
 	extracted_param := request.Parameters["fields"]
 	if extracted_param != nil {
@@ -195,14 +225,14 @@ func Test_LastUploadedResourceListRequest_EmptyFieldsList(t *testing.T) {
 	}
 }
 
-func Test_LastUploadedResourceListRequest_MediaTypes(t *testing.T) {
+func Test_FlatFileListRequest_MediaTypes(t *testing.T) {
 	var client = NewStubResponseClient(`{}`, http.StatusOK)
-	var options = diskclient.LastUploadedResourceListRequestOptions{}
-	options.Media_type = []diskclient.MediaType{
-		*(&diskclient.MediaType{}).Audio(),
-		*(&diskclient.MediaType{}).Backup(),
+	var options = FlatFileListRequestOptions{}
+	options.Media_type = []MediaType{
+		*(&MediaType{}).Audio(),
+		*(&MediaType{}).Backup(),
 	}
-	request := client.NewLastUploadedResourceListRequest(options).Request()
+	request := client.NewFlatFileListRequest(options).Request()
 
 	extracted_param := request.Parameters["media_type"]
 	if extracted_param != "audio,backup" {
@@ -210,10 +240,10 @@ func Test_LastUploadedResourceListRequest_MediaTypes(t *testing.T) {
 	}
 }
 
-func Test_LastUploadedResourceListRequest_NoMediaTypes(t *testing.T) {
+func Test_FlatFileListRequest_NoMediaTypes(t *testing.T) {
 	var client = NewStubResponseClient(`{}`, http.StatusOK)
-	var options = diskclient.LastUploadedResourceListRequestOptions{}
-	request := client.NewLastUploadedResourceListRequest(options).Request()
+	var options = FlatFileListRequestOptions{}
+	request := client.NewFlatFileListRequest(options).Request()
 
 	extracted_param := request.Parameters["media_type"]
 	if extracted_param != nil {

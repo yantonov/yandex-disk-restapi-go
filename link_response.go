@@ -1,4 +1,4 @@
-package src
+package yandexdiskapi
 
 // https://tech.yandex.com/disk/api/reference/response-objects-docpage/#link
 type LinkResponse struct {

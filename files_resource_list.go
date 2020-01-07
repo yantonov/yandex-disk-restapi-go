@@ -1,4 +1,4 @@
-package src
+package yandexdiskapi
 
 type FilesResourceListResponse struct {
 	Items  []ResourceInfoResponse `json:"items"`

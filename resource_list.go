@@ -1,4 +1,4 @@
-package src
+package yandexdiskapi
 
 type ResourceListResponse struct {
 	Sort       *SortMode              `json:"sort"`

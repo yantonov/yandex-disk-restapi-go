@@ -1,8 +1,7 @@
-package test
+package yandexdiskapi
 
 import (
 	"fmt"
-	diskclient "github.com/yantonov/yandex-disk-restapi-go/src"
 	"net/http"
 	"reflect"
 	"testing"
@@ -18,7 +17,7 @@ func Test_Download_Simple(t *testing.T) {
 	if err != nil {
 		t.Error(fmt.Sprintf("unexpected error %s", err.Error()))
 	}
-	var expected = &diskclient.LinkResponse{}
+	var expected = &LinkResponse{}
 	expected.Href = "https://cloud-api.yandex.net/v1/disk/resources?path=disk%3A%2Ffoo%2Fphoto.png"
 	expected.Method = "GET"
 	expected.Templated = true

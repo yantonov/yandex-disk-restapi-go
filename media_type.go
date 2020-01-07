@@ -1,4 +1,4 @@
-package src
+package yandexdiskapi
 
 type MediaType struct {
 	media_type string

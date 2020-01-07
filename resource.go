@@ -1,4 +1,4 @@
-package src
+package yandexdiskapi
 
 type ResourceInfoResponse struct {
 	Public_key        string                 `json:"public_key"`

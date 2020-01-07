@@ -1,7 +1,6 @@
-package test
+package yandexdiskapi
 
 import (
-	client "github.com/yantonov/yandex-disk-restapi-go/src"
 	"io/ioutil"
 	"net/http"
 	"strings"
@@ -18,8 +17,8 @@ type stubResponseTransport struct {
 	statusCode int
 }
 
-func NewStubResponseClient(content string, statusCode ...int) *client.Client {
-	c := client.NewClient("")
+func NewStubResponseClient(content string, statusCode ...int) *Client {
+	c := NewClient("")
 	t := &stubResponseTransport{content: content}
 
 	if len(statusCode) != 0 {

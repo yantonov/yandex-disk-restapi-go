@@ -1,4 +1,4 @@
-package src
+package yandexdiskapi
 
 type httpRequest struct {
 	Method     string

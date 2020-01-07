@@ -1,4 +1,4 @@
-package src
+package yandexdiskapi
 
 type ResourceInfoRequestOptions struct {
 	Sort_mode    *SortMode
